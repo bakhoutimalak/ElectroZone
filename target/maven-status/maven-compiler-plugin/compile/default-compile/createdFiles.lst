@@ -29,3 +29,4 @@ com/formation/ecommerce/repository/UserRepository.class
 com/formation/ecommerce/controller/GlobalExceptionHandler.class
 com/formation/ecommerce/config/DataInitializer.class
 com/formation/ecommerce/EcommerceApplication.class
+com/formation/ecommerce/config/ErrorConfig.class

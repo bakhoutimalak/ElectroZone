@@ -70,8 +70,9 @@
 
     <!-- Panier vide -->
     <div th:if="${cart.orderItems.isEmpty()}" class="text-center py-5">
-        <div style="font-size:4rem;">🛒</div>
-        <p class="text-muted mt-3 fs-5">Votre panier est vide.</p>
+        <div style="font-size:4rem;"></div>
+        <p class="text-muted mt-3 fs-5"><div style="text-align:center;margin:2rem 0;"><img src="/images/img3.png" style="max-width:320px;width:100%;"></div>
+Votre panier est vide.</p>
         <a th:href="@{/items}" class="btn rounded-pill px-5 fw-bold"
            style="background:#6c63ff; color:white; border:none;">
             Découvrir les articles

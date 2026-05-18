@@ -35,8 +35,13 @@
     <div class="ez-card p-4">
         <div class="row align-items-center g-4">
             <div class="col-md-3 text-center">
-                <div style="background:#f5f3ff; border-radius:16px; padding:2rem;">
-                    <i class="bi bi-box-seam" style="font-size:3.5rem; color:#c4baff;"></i>
+                <div style="background:#f5f3ff; border-radius:16px; padding:2rem; display:flex; align-items:center; justify-content:center; min-height:200px;">
+                    <img th:if="${item.imageUrl != null and !item.imageUrl.isEmpty()}"
+                         th:src="${item.imageUrl}"
+                         style="max-width:100%; max-height:200px; object-fit:contain; border-radius:10px;"
+                         alt="image"/>
+                    <i th:if="${item.imageUrl == null or item.imageUrl.isEmpty()}"
+                       class="bi bi-box-seam" style="font-size:3.5rem; color:#c4baff;"></i>
                 </div>
                 <div class="mt-3">
                     <span class="cat-badge" th:text="${item.category}">Cat</span>
@@ -65,7 +70,7 @@
 
                 <div class="d-flex gap-3 mt-4 flex-wrap">
                     <form th:action="@{'/cart/add/' + ${item.id}}" method="post"
-                          sec:authorize="isAuthenticated()" th:if="${item.quantityInStock > 0}">
+                          sec:authorize="hasRole('USER')" th:if="${item.quantityInStock > 0}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <div class="input-group">
                             <input type="number" name="quantity" value="1" min="1"

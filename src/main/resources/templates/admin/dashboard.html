@@ -72,7 +72,12 @@
 </div>
 
 <div class="admin-main">
-    <h4 class="fw-bold mb-4">Tableau de bord</h4>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Tableau de bord</h4>
+        <a th:href="@{/items}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="bi bi-arrow-left me-1"></i>Retour boutique
+        </a>
+    </div>
 
     <div class="welcome-banner">
         <h5 class="fw-bold mb-1">Bienvenue sur ElectroZone Admin</h5>

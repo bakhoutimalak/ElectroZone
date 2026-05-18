@@ -41,7 +41,7 @@ public class Item {
     private String category;
 
     // Image stockée en base64 ou nom de fichier
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     // Archivé ou non
