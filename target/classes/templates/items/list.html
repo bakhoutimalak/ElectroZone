@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Articles — ElectroZone</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+    <style>
+        body { background: #f5f3ff; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: white !important; border-bottom: 1px solid #e8e8f0; }
+        .navbar-brand { color: #6c63ff !important; font-weight: 800; font-size: 1.4rem; }
+        .nav-link { color: #555 !important; font-weight: 500; }
+        .nav-link:hover { color: #6c63ff !important; }
+        .btn-cart { background: #ede9ff; color: #6c63ff; border: none; border-radius: 8px; padding: 0.35rem 1rem; font-weight: 600; text-decoration: none; }
+        .btn-cart:hover { background: #6c63ff; color: white; }
+        .badge-admin { background: #6c63ff; color: white; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.72rem; font-weight: 700; }
+        .hero { background: linear-gradient(135deg, #7c73ff, #9b8fff, #c4baff); padding: 3rem 0; color: white; margin-bottom: 2rem; }
+        .hero h1 { font-size: 2.4rem; font-weight: 800; }
+        .hero h1 span { color: #ffd166; }
+        .hero-pill { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.3rem 1rem; font-size: 0.83rem; display: inline-block; margin-bottom: 1rem; }
+        .hero-tag { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 0.25rem 0.8rem; font-size: 0.78rem; display: inline-block; margin: 0.15rem; }
+        .btn-hero { background: white; color: #6c63ff; border: none; border-radius: 10px; padding: 0.65rem 1.8rem; font-weight: 700; text-decoration: none; display: inline-block; }
+        .btn-hero:hover { color: #5a52d5; }
+        .search-card { background: white; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(108,99,255,0.07); border: 1px solid #e8e8f0; }
+        .search-card .form-control, .search-card .form-select { border: 2px solid #e8e8f0; border-radius: 8px; }
+        .search-card .form-control:focus, .search-card .form-select:focus { border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,0.1); }
+        .btn-search { background: #6c63ff; color: white; border: none; border-radius: 8px; font-weight: 600; }
+        .btn-search:hover { background: #5a52d5; color: white; }
+        .item-card { background: white; border-radius: 16px; border: 1px solid #e8e8f0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(108,99,255,0.13); }
+        .item-img { background: #f5f3ff; height: 155px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #c4baff; position: relative; overflow: hidden; }
+        .item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .badge-new { position: absolute; top: 10px; left: 10px; background: #6c63ff; color: white; border-radius: 20px; padding: 0.15rem 0.6rem; font-size: 0.7rem; font-weight: 700; }
+        .cat-badge { background: #ede9ff; color: #6c63ff; border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.72rem; font-weight: 700; }
+        .price { color: #6c63ff; font-weight: 800; font-size: 1.05rem; }
+        .stock-ok { color: #16a34a; font-size: 0.8rem; }
+        .stock-low { color: #d97706; font-size: 0.8rem; }
+        .stock-empty { color: #dc2626; font-size: 0.8rem; }
+        .btn-detail { border: 2px solid #e8e8f0; color: #555; background: white; border-radius: 8px; padding: 0.38rem 0.65rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+        .btn-detail:hover { border-color: #6c63ff; color: #6c63ff; }
+        .btn-add { background: #6c63ff; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.82rem; }
+        .btn-add:hover { background: #5a52d5; color: white; }
+        .btn-edit { background: #ede9ff; color: #6c63ff; border: none; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+        .btn-del { background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+        .btn-new { background: #6c63ff; color: white; border: none; border-radius: 20px; padding: 0.45rem 1.2rem; font-weight: 600; font-size: 0.88rem; text-decoration: none; }
+        .btn-new:hover { background: #5a52d5; color: white; }
+        .btn-login { background: #6c63ff; color: white; border: none; border-radius: 8px; padding: 0.4rem 1.2rem; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+        .btn-login:hover { background: #5a52d5; color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/items}">ElectroZone</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav me-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/items}">
+                        <i class="bi bi-grid me-1"></i>Boutique
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/orders}">
+                        <i class="bi bi-bag me-1"></i>Mes Commandes
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="bi bi-speedometer2 me-1"></i>Tableau de bord
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <!-- Visiteur non connecté -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/auth/login}" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/auth/register}" class="nav-link">Inscription</a>
+                </li>
+                <!-- Client connecté -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="btn-cart" th:href="@{/cart}">
+                        <i class="bi bi-cart3 me-1"></i>Panier
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/profile}">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span th:text="${fullName}">Nom</span>
+                        <span class="badge-admin ms-1" sec:authorize="hasRole('ADMIN')">Admin</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/auth/logout}"
+                       style="color:#dc2626 !important;">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="container">
+        <div class="hero-pill">✨ Nouveautés 2026</div>
+        <h1>La façon <span>intelligente</span><br/>d'acheter de l'électronique.</h1>
+        <p class="mt-3 mb-4" style="opacity:0.85; max-width:460px;">
+            Découvrez les derniers smartphones, laptops, tablettes et accessoires.
+        </p>
+        <div class="d-flex gap-3 flex-wrap mb-3">
+            <a href="#catalogue" class="btn-hero">Voir les produits</a>
+        </div>
+        <div>
+            <span class="hero-tag">🚚 Livraison rapide</span>
+            <span class="hero-tag">🔒 Paiement sécurisé</span>
+            <span class="hero-tag">↩️ Retour 14 jours</span>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Recherche -->
+    <div class="search-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">
+                <i class="bi bi-search me-2" style="color:#6c63ff;"></i>Recherche multi-critères
+            </h6>
+            <a th:href="@{/items/new}" class="btn-new" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-plus-lg me-1"></i>Nouvel article
+            </a>
+        </div>
+        <form th:action="@{/items}" method="get">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="name" class="form-control form-control-sm"
+                           placeholder="Nom de l'article" th:value="${searchName}"/>
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select form-select-sm">
+                        <option value="">Toutes catégories</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat}" th:text="${cat}"
+                                th:selected="${cat == searchCategory}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="minPrice" class="form-control form-control-sm"
+                           placeholder="Prix min" step="0.01" min="0"
+                           th:value="${searchMinPrice}"/>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="maxPrice" class="form-control form-control-sm"
+                           placeholder="Prix max" step="0.01" min="0"
+                           th:value="${searchMaxPrice}"/>
+                </div>
+                <div class="col-md-2">
+                    <select name="inStock" class="form-select form-select-sm">
+                        <option value="">Tous stocks</option>
+                        <option value="true" th:selected="${searchInStock == true}">En stock</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-search btn-sm w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 d-flex align-items-center gap-3">
+                <a th:href="@{/items}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <i class="bi bi-x-lg me-1"></i>Réinitialiser
+                </a>
+                <span class="text-muted small"
+                      th:text="${items.size()} + ' article(s)'"></span>
+            </div>
+        </form>
+    </div>
+
+    <h5 id="catalogue" class="fw-bold mb-3">Tous les articles</h5>
+
+    <!-- Grille articles -->
+    <div class="row g-3" th:if="${!items.isEmpty()}">
+        <div class="col-md-4 col-lg-3" th:each="item : ${items}">
+            <div class="item-card">
+                <div class="item-img">
+                    <span class="badge-new">Nouveau</span>
+                    <img th:if="${item.imageUrl != null and !item.imageUrl.isEmpty()}"
+                         th:src="${item.imageUrl}" alt="image"/>
+                    <i th:if="${item.imageUrl == null or item.imageUrl.isEmpty()}"
+                       class="bi bi-box-seam"></i>
+                </div>
+                <div class="p-3 d-flex flex-column flex-grow-1">
+                    <div class="mb-2">
+                        <span class="cat-badge" th:text="${item.category}">Cat</span>
+                    </div>
+                    <h6 class="fw-bold mb-1" th:text="${item.name}">Nom</h6>
+                    <p class="text-muted small flex-grow-1 mb-2"
+                       th:text="${#strings.abbreviate(item.description, 75)}">Desc</p>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="price"
+                              th:text="${#numbers.formatDecimal(item.price,1,2)} + ' MAD'">0</span>
+                        <small th:class="${item.quantityInStock > 10 ? 'stock-ok' : (item.quantityInStock > 0 ? 'stock-low' : 'stock-empty')}">
+                            <i class="bi bi-box-seam me-1"></i>
+                            <span th:text="${item.quantityInStock > 0 ? item.quantityInStock + ' en stock' : 'Épuisé'}"></span>
+                        </small>
+                    </div>
+                    <div class="text-muted mb-3" style="font-size:0.77rem;">
+                        <i class="bi bi-calendar3 me-1"></i>Exp:
+                        <span th:text="${item.expirationDate}"></span>
+                    </div>
+                    <div class="d-flex gap-2 mt-auto">
+                        <a th:href="@{'/items/' + ${item.id}}" class="btn-detail">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <form th:action="@{'/cart/add/' + ${item.id}}" method="post"
+                              class="flex-fill" sec:authorize="isAuthenticated()"
+                              th:if="${item.quantityInStock > 0}">
+                            <input type="hidden" th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit" class="btn btn-add btn-sm w-100">
+                                <i class="bi bi-cart-plus me-1"></i>Ajouter
+                            </button>
+                        </form>
+                        <!-- Message si non connecté -->
+                        <a th:href="@{/auth/login}"
+                           class="btn btn-add btn-sm flex-fill text-center"
+                           sec:authorize="!isAuthenticated()"
+                           th:if="${item.quantityInStock > 0}">
+                            <i class="bi bi-cart-plus me-1"></i>Ajouter
+                        </a>
+                        <span th:if="${item.quantityInStock == 0}"
+                              class="text-muted small align-self-center flex-fill text-center">
+                            Épuisé
+                        </span>
+                        <div class="d-flex gap-1" sec:authorize="hasRole('ADMIN')">
+                            <a th:href="@{'/items/edit/' + ${item.id}}" class="btn-edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{'/items/delete/' + ${item.id}}" class="btn-del"
+                               onclick="return confirm('Supprimer cet article ?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${items.isEmpty()}" class="text-center py-5">
+        <i class="bi bi-search" style="font-size:3rem; color:#c4baff;"></i>
+        <p class="text-muted mt-3">Aucun article trouvé.</p>
+        <a th:href="@{/items}" class="btn btn-outline-secondary rounded-pill px-4">
+            Voir tous les articles
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

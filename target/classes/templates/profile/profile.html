@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Mon Compte — ElectroZone</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+    <style>
+        body { background: #f5f3ff; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: white !important; border-bottom: 1px solid #e8e8f0; }
+        .navbar-brand { color: #6c63ff !important; font-weight: 800; font-size: 1.4rem; }
+        .nav-link { color: #555 !important; font-weight: 500; }
+        .nav-link:hover { color: #6c63ff !important; }
+        .ez-card { background: white; border-radius: 16px; border: 1px solid #e8e8f0; }
+        .ez-card-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid #e8e8f0; font-weight: 700; }
+        .ez-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #8b8fa8; display: block; margin-bottom: 0.4rem; }
+        .ez-field { border: 2px solid #e8e8f0; border-radius: 10px; padding: 0.65rem 1rem; width: 100%; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .ez-field:focus { border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,0.1); }
+        .btn-save { background: #6c63ff; color: white; border: none; border-radius: 10px; padding: 0.65rem 2rem; font-weight: 700; }
+        .btn-save:hover { background: #5a52d5; color: white; }
+        .avatar-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid #ede9ff; }
+        .avatar-placeholder { width: 90px; height: 90px; background: #6c63ff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; border: 3px solid #ede9ff; flex-shrink: 0; }
+        .section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #6c63ff; border-bottom: 2px solid #ede9ff; padding-bottom: 0.4rem; margin-bottom: 1rem; margin-top: 1.5rem; }
+        .avatar-upload { position: relative; cursor: pointer; }
+        .avatar-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; border-radius: 50%; }
+        .avatar-overlay { position: absolute; bottom: 0; right: 0; background: #6c63ff; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; border: 2px solid white; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/items}">ElectroZone</a>
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <a th:href="@{/items}" class="nav-link">
+                <i class="bi bi-grid me-1"></i>Boutique
+            </a>
+            <a th:href="@{/orders}" class="nav-link">
+                <i class="bi bi-bag me-1"></i>Commandes
+            </a>
+            <a th:href="@{/cart}" class="nav-link">
+                <i class="bi bi-cart3 me-1"></i>Panier
+            </a>
+            <a th:href="@{/auth/logout}" class="nav-link" style="color:#dc2626 !important;">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5" style="max-width:750px;">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- En-tête profil -->
+    <div class="ez-card p-4 mb-4">
+        <div class="d-flex align-items-center gap-4">
+            <!-- Avatar -->
+            <div class="avatar-upload" style="position:relative; width:90px; height:90px;">
+                <img th:if="${user.avatarUrl != null and !user.avatarUrl.isEmpty()}"
+                     th:src="${user.avatarUrl}" class="avatar-img" alt="avatar"
+                     id="avatar-preview"/>
+                <div th:if="${user.avatarUrl == null or user.avatarUrl.isEmpty()}"
+                     class="avatar-placeholder" id="avatar-placeholder">
+                    <span th:text="${#strings.toUpperCase(#strings.substring(user.firstName,0,1))}">A</span>
+                </div>
+                <div class="avatar-overlay">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+                <input type="file" id="avatarFile" accept="image/*"
+                       onchange="previewAvatar(this)" title="Changer la photo"/>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-1"
+                    th:text="${user.firstName + ' ' + user.lastName}">Nom</h4>
+                <div class="text-muted" th:text="${user.email}">Email</div>
+                <span class="badge rounded-pill mt-1"
+                      style="background:#ede9ff; color:#6c63ff;">Client</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="ez-card">
+        <div class="ez-card-header">
+            <i class="bi bi-person-gear me-2" style="color:#6c63ff;"></i>
+            Modifier mon profil
+        </div>
+        <div class="p-4">
+            <form th:action="@{/profile/update}" method="post"
+                  enctype="multipart/form-data">
+                <input type="hidden" th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+                <!-- Avatar caché dans le formulaire -->
+                <input type="file" name="avatar" id="avatarInput"
+                       accept="image/*" style="display:none;"/>
+
+                <div class="section-title">INFORMATIONS PERSONNELLES</div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="ez-label">Prénom *</label>
+                        <input type="text" name="firstName" class="ez-field"
+                               th:value="${user.firstName}" required/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ez-label">Nom *</label>
+                        <input type="text" name="lastName" class="ez-field"
+                               th:value="${user.lastName}" required/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="ez-label">Adresse email *</label>
+                    <input type="email" name="email" class="ez-field"
+                           th:value="${user.email}" required/>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Modifier l'email changera aussi vos identifiants de connexion.
+                    </small>
+                </div>
+                <div class="mb-3">
+                    <label class="ez-label">Téléphone *</label>
+                    <input type="tel" name="phone" class="ez-field"
+                           th:value="${user.phone}" placeholder="0600000000" required/>
+                </div>
+
+                <div class="section-title">ADRESSE DE LIVRAISON</div>
+                <div class="mb-3">
+                    <label class="ez-label">Adresse</label>
+                    <input type="text" name="address" class="ez-field"
+                           th:value="${user.address}" placeholder="Numéro et nom de rue"/>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="ez-label">Ville</label>
+                        <input type="text" name="city" class="ez-field"
+                               th:value="${user.city}" placeholder="Ville"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ez-label">Région</label>
+                        <input type="text" name="region" class="ez-field"
+                               th:value="${user.region}" placeholder="Région"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="ez-label">Code postal</label>
+                    <input type="text" name="postalCode" class="ez-field"
+                           th:value="${user.postalCode}" placeholder="00000"/>
+                </div>
+
+                <div class="section-title">CHANGER LE MOT DE PASSE</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="ez-label">Nouveau mot de passe</label>
+                        <input type="password" name="newPassword" class="ez-field"
+                               placeholder="Laisser vide pour ne pas changer"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="ez-label">Confirmer le mot de passe</label>
+                        <input type="password" name="confirmPassword" class="ez-field"
+                               placeholder="Répéter le nouveau mot de passe"/>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check-lg me-2"></i>Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Mettre à jour la prévisualisation
+            const placeholder = document.getElementById('avatar-placeholder');
+            const preview = document.getElementById('avatar-preview');
+            if (preview) {
+                preview.src = e.target.result;
+            } else if (placeholder) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'avatar-img';
+                img.id = 'avatar-preview';
+                placeholder.replaceWith(img);
+            }
+            // Copier le fichier dans l'input du formulaire
+            const dt = new DataTransfer();
+            dt.items.add(input.files[0]);
+            document.getElementById('avatarInput').files = dt.files;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
