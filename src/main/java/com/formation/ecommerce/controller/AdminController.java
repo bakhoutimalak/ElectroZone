@@ -1,6 +1,10 @@
 package com.formation.ecommerce.controller;
 
 import com.formation.ecommerce.model.Category;
+import com.formation.ecommerce.model.Order;
+import com.formation.ecommerce.model.OrderItem;
+import java.util.*;
+import java.util.stream.Collectors;
 import com.formation.ecommerce.repository.ItemRepository;
 import com.formation.ecommerce.repository.OrderRepository;
 import com.formation.ecommerce.repository.UserRepository;
@@ -39,10 +43,110 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
+        // ── Stats de base ──────────────────────────────────────────
         model.addAttribute("totalItems", itemRepository.count());
-        model.addAttribute("totalOrders", orderRepository.count());
         model.addAttribute("totalUsers", userRepository.count());
-        model.addAttribute("recentOrders", orderRepository.findAll());
+
+        List<Order> allOrders = orderRepository.findAll();
+        long totalOrders = allOrders.stream()
+            .filter(o -> o.getStatus() != Order.OrderStatus.CART).count();
+        model.addAttribute("totalOrders", totalOrders);
+
+        double chiffreAffaires = allOrders.stream()
+            .filter(o -> o.getStatus() == Order.OrderStatus.CONFIRMED
+                      || o.getStatus() == Order.OrderStatus.SHIPPED
+                      || o.getStatus() == Order.OrderStatus.DELIVERED)
+            .mapToDouble(Order::getTotalPrice).sum();
+        model.addAttribute("chiffreAffaires",
+            String.format("%.0f", chiffreAffaires));
+
+        // ── Produits les plus / moins demandés ─────────────────────
+        Map<String, Integer> produitQty = new LinkedHashMap<>();
+        allOrders.stream()
+            .filter(o -> o.getStatus() != Order.OrderStatus.CART)
+            .flatMap(o -> o.getOrderItems().stream())
+            .forEach(oi -> produitQty.merge(oi.getItem().getName(),
+                                            oi.getQuantity(), Integer::sum));
+
+        // Trier par quantité décroissante
+        List<Map.Entry<String, Integer>> sortedProduits = produitQty.entrySet()
+            .stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .collect(Collectors.toList());
+
+        // Top 5 plus demandés
+        List<String> topProduitsLabels = sortedProduits.stream()
+            .limit(5).map(Map.Entry::getKey).collect(Collectors.toList());
+        List<Integer> topProduitsData = sortedProduits.stream()
+            .limit(5).map(Map.Entry::getValue).collect(Collectors.toList());
+
+        // Top 5 moins demandés
+        List<Map.Entry<String, Integer>> reversedProduits = new ArrayList<>(sortedProduits);
+        Collections.reverse(reversedProduits);
+        List<String> flopProduitsLabels = reversedProduits.stream()
+            .limit(5).map(Map.Entry::getKey).collect(Collectors.toList());
+        List<Integer> flopProduitsData = reversedProduits.stream()
+            .limit(5).map(Map.Entry::getValue).collect(Collectors.toList());
+
+        model.addAttribute("topProduitsLabels", topProduitsLabels);
+        model.addAttribute("topProduitsData", topProduitsData);
+        model.addAttribute("flopProduitsLabels", flopProduitsLabels);
+        model.addAttribute("flopProduitsData", flopProduitsData);
+
+        // ── Catégories les plus / moins demandées ──────────────────
+        Map<String, Integer> catQty = new LinkedHashMap<>();
+        allOrders.stream()
+            .filter(o -> o.getStatus() != Order.OrderStatus.CART)
+            .flatMap(o -> o.getOrderItems().stream())
+            .forEach(oi -> {
+                String cat = oi.getItem().getCategory() != null
+                    ? oi.getItem().getCategory().toString() : "Autre";
+                catQty.merge(cat, oi.getQuantity(), Integer::sum);
+            });
+
+        List<Map.Entry<String, Integer>> sortedCats = catQty.entrySet()
+            .stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .collect(Collectors.toList());
+
+        List<String> catLabels = sortedCats.stream()
+            .map(Map.Entry::getKey).collect(Collectors.toList());
+        List<Integer> catData = sortedCats.stream()
+            .map(Map.Entry::getValue).collect(Collectors.toList());
+
+        model.addAttribute("catLabels", catLabels);
+        model.addAttribute("catData", catData);
+
+        // ── Commandes par région (carte) ───────────────────────────
+        Map<String, Long> regionOrders = allOrders.stream()
+            .filter(o -> o.getStatus() != Order.OrderStatus.CART
+                      && o.getUser().getRegion() != null
+                      && !o.getUser().getRegion().isBlank())
+            .collect(Collectors.groupingBy(
+                o -> o.getUser().getRegion(), Collectors.counting()));
+
+        // Trier par nombre de commandes décroissant
+        List<Map.Entry<String, Long>> sortedRegions = regionOrders.entrySet()
+            .stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+            .collect(Collectors.toList());
+
+        List<String> regionLabels = sortedRegions.stream()
+            .map(Map.Entry::getKey).collect(Collectors.toList());
+        List<Long> regionData = sortedRegions.stream()
+            .map(Map.Entry::getValue).collect(Collectors.toList());
+
+        model.addAttribute("regionLabels", regionLabels);
+        model.addAttribute("regionData", regionData);
+
+        // ── Statuts des commandes ──────────────────────────────────
+        long confirmed = allOrders.stream().filter(o -> o.getStatus() == Order.OrderStatus.CONFIRMED).count();
+        long shipped   = allOrders.stream().filter(o -> o.getStatus() == Order.OrderStatus.SHIPPED).count();
+        long delivered = allOrders.stream().filter(o -> o.getStatus() == Order.OrderStatus.DELIVERED).count();
+        long cancelled = allOrders.stream().filter(o -> o.getStatus() == Order.OrderStatus.CANCELLED).count();
+
+
+
         return "admin/dashboard";
     }
 
