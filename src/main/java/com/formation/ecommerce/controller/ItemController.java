@@ -45,8 +45,10 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("item", itemService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Article introuvable")));
+        Item item = itemService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Article introuvable"));
+        model.addAttribute("item", item);
+        model.addAttribute("related", itemService.findByCategory(item.getCategory(), item.getId()));
         return "items/detail";
     }
 

@@ -19,7 +19,7 @@ public class Item {
     private String name;
 
     @NotBlank(message = "La description est obligatoire")
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @NotNull(message = "Le prix est obligatoire")

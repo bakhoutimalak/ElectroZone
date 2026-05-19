@@ -129,8 +129,8 @@
                     <td style="color:#6c63ff;" class="fw-semibold" th:text="'#' + ${item.id}">ID</td>
                     <td>
                         <div class="fw-semibold" th:text="${item.name}">Nom</div>
-                        <small class="text-muted"
-                               th:text="${#strings.abbreviate(item.description, 40)}">Desc</small>
+                        <small class="text-muted" style="white-space:pre-line; font-size:0.78rem;"
+                               th:text="${#strings.abbreviate(item.description, 80)}">Desc</small>
                     </td>
                     <td th:text="${item.category}">Cat</td>
                     <td class="fw-semibold" style="color:#6c63ff;"

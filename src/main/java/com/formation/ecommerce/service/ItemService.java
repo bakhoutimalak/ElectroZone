@@ -84,6 +84,16 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional(readOnly = true)
+    public List<Item> findByCategory(String category, Long excludeId) {
+        return itemRepository.findAll().stream()
+                .filter(i -> !i.isArchived())
+                .filter(i -> category != null && category.equals(i.getCategory()))
+                .filter(i -> !i.getId().equals(excludeId))
+                .limit(4)
+                .toList();
+    }
+
     private boolean isBlank(String s) {
         return s == null || s.isBlank();
     }
