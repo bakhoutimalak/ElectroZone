@@ -106,6 +106,10 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    public Order save(Order order) {
+        return orderRepository.save(order);
+    }
+
     public Order updateStatus(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Commande introuvable"));

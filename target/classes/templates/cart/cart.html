@@ -71,8 +71,7 @@
     <!-- Panier vide -->
     <div th:if="${cart.orderItems.isEmpty()}" class="text-center py-5">
         <div style="font-size:4rem;"></div>
-        <p class="text-muted mt-3 fs-5"><div style="text-align:center;margin:2rem 0;"><img src="/images/img3.png" style="max-width:320px;width:100%;"></div>
-Votre panier est vide.</p>
+        <img src="/images/img3.png" style="max-width:380px;width:100%;margin-bottom:1rem;"><br><p class="text-muted fs-5">Votre panier est vide.</p>
         <a th:href="@{/items}" class="btn rounded-pill px-5 fw-bold"
            style="background:#6c63ff; color:white; border:none;">
             Découvrir les articles
@@ -120,10 +119,7 @@ Votre panier est vide.</p>
                                            th:id="'qty-' + ${oi.id}"
                                            min="1"
                                            th:data-row-id="${oi.id}"
-                                           oninput="updateSubtotal(this)"/>
-                                    <button type="submit" class="btn-update">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </button>
+                                           onchange="this.form.submit()"/>
                                 </form>
                             </div>
                             <div class="col-md-2 text-end">
@@ -156,10 +152,10 @@ Votre panier est vide.</p>
                     <div class="fw-semibold small mb-1" style="color:#6c63ff;">
                         <i class="bi bi-geo-alt me-1"></i>Adresse de livraison
                     </div>
-                    <div class="small" th:text="${fullName}">Adresse</div>
+                    <div class="small" th:text="${cart.user.address}">Adresse</div>
                     <div class="small"
                          th:text="${(cart.user.city != null ? cart.user.city : '') + ' ' + (cart.user.postalCode != null ? cart.user.postalCode : '')}">Ville</div>
-                    <div class="small" th:text="${fullName}">Région</div>
+                    <div class="small" th:text="${cart.user.region}">Région</div>
                 </div>
                 <div class="address-box mb-3" th:if="${currentUserObj == null or currentUserObj.address == null}">
                     <div class="small text-muted">
@@ -178,16 +174,19 @@ Votre panier est vide.</p>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Livraison</span>
-                    <span class="fw-semibold text-success">GRATUITE</span>
+                    <span id="livraison-display" class="fw-semibold"
+                          th:class="${fraisLivraison == 0} ? 'fw-semibold text-success' : 'fw-semibold'"
+                          th:text="${fraisLivraison == 0} ? 'GRATUITE' : ${fraisLivraison} + ' MAD'">-</span>
                 </div>
-
-                <!-- Mode de paiement -->
-                <div class="d-flex justify-content-between mb-3 align-items-center">
-                    <span class="text-muted">Paiement</span>
-                    <span class="payment-badge">
-                        <i class="bi bi-truck"></i>
-                        Paiement à la livraison
+                <div id="seuil-info" class="d-flex justify-content-between mb-2" th:if="${fraisLivraison > 0}">
+                    <span class="text-muted" style="font-size:0.8rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Gratuite dès <span th:text="${seuilGratuit} + ' MAD'"></span>
                     </span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted"><i class="bi bi-clock me-1"></i>Délai estimé</span>
+                    <span class="fw-semibold small" th:text="${delaiLivraison}">-</span>
                 </div>
 
                 <hr class="divider"/>
@@ -195,15 +194,35 @@ Votre panier est vide.</p>
                 <div class="d-flex justify-content-between mb-4">
                     <span class="fw-bold fs-5">Total</span>
                     <span class="total-price" id="grand-total-display"
-                          th:text="${#numbers.formatDecimal(cart.totalPrice,1,2)} + ' MAD'">0</span>
+                          th:text="${#numbers.formatDecimal(totalAvecLivraison,1,2)} + ' MAD'">0</span>
                 </div>
 
-                <form th:action="@{/cart/confirm}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn-confirm"
-                            onclick="return confirm('Confirmer votre commande ?')">
+                <!-- Mode de paiement -->
+                <div class="mb-3">
+                    <div class="fw-semibold small mb-2">Mode de paiement</div>
+                    <label class="d-flex align-items-center gap-2 p-2 rounded-3 mb-2" style="border:2px solid #ede9ff;cursor:pointer;">
+                        <input type="radio" name="pm" value="cod" checked onchange="document.getElementById('btnCod').style.display='block';document.getElementById('btnCmi').style.display='none';"/>
+                        <i class="bi bi-truck" style="color:#6c63ff;"></i>
+                        <div><div class="fw-semibold small">Paiement à la livraison</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Payez en espèces à la réception</div></div>
+                    </label>
+                    <label class="d-flex align-items-center gap-2 p-2 rounded-3" style="border:2px solid #ede9ff;cursor:pointer;">
+                        <input type="radio" name="pm" value="cmi" onchange="document.getElementById('btnCod').style.display='none';document.getElementById('btnCmi').style.display='block';"/>
+                        <i class="bi bi-credit-card" style="color:#1d4ed8;"></i>
+                        <div><div class="fw-semibold small">Paiement par carte CMI</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Payez en ligne — sécurisé SSL</div></div>
+                    </label>
+                </div>
+                <form th:action="@{/cart/confirm-cod}" method="post" id="btnCod">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-confirm">
                         <i class="bi bi-check-circle me-2"></i>Confirmer la commande
+                    </button>
+                </form>
+                <form th:action="@{/cart/confirm-cmi}" method="post" id="btnCmi" style="display:none;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-confirm" style="background:#1d4ed8;">
+                        <i class="bi bi-credit-card me-2"></i>Payer par carte CMI
                     </button>
                 </form>
             </div>
@@ -215,6 +234,32 @@ Votre panier est vide.</p>
 </div>
 
 <script>
+const fraisBase = [[${fraisBase}]];
+const seuilGratuit = [[${seuilGratuit}]];
+
+function recalcLivraison() {
+    let grandTotal = 0;
+    document.querySelectorAll('.cart-row').forEach(r => {
+        const rId = r.id.replace('row-', '');
+        const qtyEl = document.getElementById('qty-' + rId);
+        const price = parseFloat(r.dataset.unitPrice) || 0;
+        const q = parseInt(qtyEl ? qtyEl.value : 0) || 0;
+        grandTotal += price * q;
+    });
+
+    const frais = grandTotal >= seuilGratuit ? 0 : fraisBase;
+    const livraisonEl = document.getElementById('livraison-display');
+    const totalFinal = document.getElementById('grand-total-display');
+    const seuilInfo = document.getElementById('seuil-info');
+
+    if (livraisonEl) {
+        livraisonEl.textContent = frais === 0 ? 'GRATUITE' : frais + ' MAD';
+        livraisonEl.style.color = frais === 0 ? '#16a34a' : '#1a1a2e';
+    }
+    if (seuilInfo) seuilInfo.style.display = frais === 0 ? 'none' : 'flex';
+    if (totalFinal) totalFinal.textContent = (grandTotal + frais).toFixed(2) + ' MAD';
+}
+
 function updateSubtotal(input) {
     const rowId = input.dataset.rowId;
     const qty = parseInt(input.value) || 0;
@@ -240,8 +285,18 @@ function updateSubtotal(input) {
     const grandEl2 = document.getElementById('grand-total-display');
     if (grandEl) grandEl.textContent = grandTotal.toFixed(2) + ' MAD';
     if (grandEl2) grandEl2.textContent = grandTotal.toFixed(2) + ' MAD';
+    recalcLivraison();
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function selectPayment(mode) {
+    document.getElementById('radio-cod').checked = (mode === 'cod');
+    document.getElementById('radio-cmi').checked = (mode === 'cmi');
+    document.getElementById('paymentInput').value = mode;
+    document.getElementById('opt-cod').style.borderColor = (mode === 'cod') ? '#6c63ff' : '#e8e8f0';
+    document.getElementById('opt-cmi').style.borderColor = (mode === 'cmi') ? '#1d4ed8' : '#e8e8f0';
+}
+</script>
 </body>
 </html>

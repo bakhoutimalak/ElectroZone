@@ -12,6 +12,7 @@
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/CartController.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/AuthController.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/config/DataInitializer.java
+/Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/service/DeliveryService.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/security/CustomUserDetailsService.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/repository/CategoryRepository.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/ProfileController.java
@@ -24,6 +25,7 @@
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/repository/OrderItemRepository.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/config/SecurityConfig.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/GlobalModelAdvice.java
+/Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/PaymentController.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/repository/OrderRepository.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/controller/ItemController.java
 /Users/malak/Desktop/ecommerce/src/main/java/com/formation/ecommerce/repository/UserRepository.java

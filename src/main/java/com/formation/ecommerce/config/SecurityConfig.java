@@ -55,6 +55,7 @@ public class SecurityConfig {
                     "/h2-console/**",
                     "/error"
                 ).permitAll()
+                .requestMatchers("/payment/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

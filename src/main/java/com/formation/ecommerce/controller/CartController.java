@@ -1,6 +1,7 @@
 package com.formation.ecommerce.controller;
 
 import com.formation.ecommerce.model.Order;
+import com.formation.ecommerce.service.DeliveryService;
 import com.formation.ecommerce.repository.UserRepository;
 import com.formation.ecommerce.service.OrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,10 +17,12 @@ public class CartController {
 
     private final OrderService orderService;
     private final UserRepository userRepository;
+    private final DeliveryService deliveryService;
 
-    public CartController(OrderService orderService, UserRepository userRepository) {
+    public CartController(OrderService orderService, UserRepository userRepository, DeliveryService deliveryService) {
         this.orderService = orderService;
         this.userRepository = userRepository;
+        this.deliveryService = deliveryService;
     }
 
     @GetMapping
@@ -31,6 +34,17 @@ public class CartController {
             // Passer le user séparément pour éviter lazy loading
             com.formation.ecommerce.model.User user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
             model.addAttribute("currentUserObj", user);
+            String region = user != null ? user.getRegion() : null;
+            double total = cart.getTotalPrice();
+            int frais = deliveryService.getFraisLivraison(region, total);
+            int fraisBase = deliveryService.getFraisBase(region);
+            int seuil = deliveryService.getSeuilGratuit(region);
+            String delai = deliveryService.getDelai(region);
+            model.addAttribute("fraisLivraison", frais);
+            model.addAttribute("fraisBase", fraisBase);
+            model.addAttribute("seuilGratuit", seuil);
+            model.addAttribute("delaiLivraison", delai);
+            model.addAttribute("totalAvecLivraison", total + frais);
             return "cart/cart";
         } catch (Exception e) {
             return "redirect:/auth/login";
@@ -80,6 +94,36 @@ public class CartController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/cart";
+    }
+
+    @PostMapping("/confirm-cod")
+    public String confirmCod(@AuthenticationPrincipal UserDetails userDetails,
+                             RedirectAttributes redirectAttributes) {
+        if (userDetails == null) return "redirect:/auth/login";
+        try {
+            Order order = orderService.confirmCart(userDetails.getUsername());
+            order.setPaymentMethod(Order.PaymentMethod.COD);
+            order.setPaymentStatus(Order.PaymentStatus.PENDING);
+            orderService.save(order);
+            redirectAttributes.addFlashAttribute("success", "Commande confirmée ! Paiement à la livraison.");
+            return "redirect:/orders";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/cart";
+        }
+    }
+
+    @PostMapping("/confirm-cmi")
+    public String confirmCmi(@AuthenticationPrincipal UserDetails userDetails,
+                              RedirectAttributes redirectAttributes) {
+        if (userDetails == null) return "redirect:/auth/login";
+        try {
+            Order order = orderService.confirmCart(userDetails.getUsername());
+            return "redirect:/payment/cmi/" + order.getId();
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/cart";
+        }
     }
 
     @PostMapping("/confirm")

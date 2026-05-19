@@ -9,6 +9,14 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
 
+    public enum PaymentMethod {
+        COD, CMI
+    }
+
+    public enum PaymentStatus {
+        PENDING, PAID, FAILED
+    }
+
     public enum OrderStatus {
         CART, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
     }
@@ -23,6 +31,14 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.CART;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private PaymentMethod paymentMethod = PaymentMethod.COD;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -68,6 +84,11 @@ public class Order {
     public void setStatus(OrderStatus status) { this.status = status; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+
     public List<OrderItem> getOrderItems() { return orderItems; }
     public void setOrderItems(List<OrderItem> orderItems) { this.orderItems = orderItems; }
 }

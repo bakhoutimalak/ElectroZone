@@ -143,8 +143,21 @@
                     </div>
                     <div class="col-md-6">
                         <label class="ez-label">Région</label>
-                        <input type="text" name="region" class="ez-field"
-                               th:value="${user.region}" placeholder="Région"/>
+                        <select name="region" class="ez-field" th:value="${user.region}">
+                            <option value="">-- Sélectionner une région --</option>
+                            <option value="Grand Casablanca-Settat"   th:selected="${user.region == 'Grand Casablanca-Settat'}">Grand Casablanca-Settat</option>
+                            <option value="Rabat-Salé-Kénitra"        th:selected="${user.region == 'Rabat-Salé-Kénitra'}">Rabat-Salé-Kénitra</option>
+                            <option value="Fès-Meknès"                th:selected="${user.region == 'Fès-Meknès'}">Fès-Meknès</option>
+                            <option value="Marrakech-Safi"            th:selected="${user.region == 'Marrakech-Safi'}">Marrakech-Safi</option>
+                            <option value="Tanger-Tétouan-Al Hoceïma" th:selected="${user.region == 'Tanger-Tétouan-Al Hoceïma'}">Tanger-Tétouan-Al Hoceïma</option>
+                            <option value="Souss-Massa"               th:selected="${user.region == 'Souss-Massa'}">Souss-Massa</option>
+                            <option value="Oriental"                  th:selected="${user.region == 'Oriental'}">Oriental</option>
+                            <option value="Béni Mellal-Khénifra"      th:selected="${user.region == 'Béni Mellal-Khénifra'}">Béni Mellal-Khénifra</option>
+                            <option value="Drâa-Tafilalet"            th:selected="${user.region == 'Drâa-Tafilalet'}">Drâa-Tafilalet</option>
+                            <option value="Guelmim-Oued Noun"         th:selected="${user.region == 'Guelmim-Oued Noun'}">Guelmim-Oued Noun</option>
+                            <option value="Laâyoune-Sakia El Hamra"   th:selected="${user.region == 'Laâyoune-Sakia El Hamra'}">Laâyoune-Sakia El Hamra</option>
+                            <option value="Dakhla-Oued Ed-Dahab"      th:selected="${user.region == 'Dakhla-Oued Ed-Dahab'}">Dakhla-Oued Ed-Dahab</option>
+                        </select>
                     </div>
                 </div>
                 <div class="mb-3">
