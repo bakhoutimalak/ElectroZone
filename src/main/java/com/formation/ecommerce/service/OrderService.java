@@ -43,7 +43,11 @@ public class OrderService {
         }
         Optional<OrderItem> existing = orderItemRepository.findByOrderAndItemId(cart, itemId);
         if (existing.isPresent()) {
-            existing.get().setQuantity(existing.get().getQuantity() + quantity);
+            int newQty = existing.get().getQuantity() + quantity;
+            if (newQty > item.getQuantityInStock()) {
+                throw new IllegalStateException("Stock insuffisant : seulement " + item.getQuantityInStock() + " disponible(s)");
+            }
+            existing.get().setQuantity(newQty);
             orderItemRepository.save(existing.get());
         } else {
             cart.addItem(new OrderItem(cart, item, quantity));
@@ -58,6 +62,10 @@ public class OrderService {
         if (quantity <= 0) {
             cart.removeItem(oi);
         } else {
+            int stock = oi.getItem().getQuantityInStock();
+            if (quantity > stock) {
+                throw new IllegalStateException("Stock insuffisant : seulement " + stock + " disponible(s) pour " + oi.getItem().getName());
+            }
             oi.setQuantity(quantity);
             orderItemRepository.save(oi);
         }
